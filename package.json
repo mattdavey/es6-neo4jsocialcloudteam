@@ -1,0 +1,29 @@
+{
+  "name": "es6-neo4jsocialcloudteam",
+  "devDependencies": {
+    "jshint": "latest",
+    "browserify": "latest",
+    "mocha": "latest"
+  },
+  "scripts": {
+    "lint": "jshint **.js",
+    "test": "mocha test/ --compilers js:babel/register",
+	  "test:watch": "npm run test -- -w"
+  },
+  "description": "Another go at the same thing with es6",
+  "version": "1.0.0",
+  "main": "app.js",
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mattdavey/es6-neo4jsocialcloudteam.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mattdavey/es6-neo4jsocialcloudteam/issues"
+  },
+  "homepage": "https://github.com/mattdavey/es6-neo4jsocialcloudteam#readme"
+}

@@ -1,26 +1,29 @@
+import assert from 'assert' 
+ 
 export default class Persistence {
 	constructor(db) {
 		this.db = db;
 	}
 
-	cleanUp(func) {
-	
+	cleanUp(resolve, reject) {
 	  const cypherDeleteRelathipships = "START r=relationship(*) DELETE r;"
 	  const cypherDeleteNodes = "MATCH (n) DELETE (n)";
 
  	  this.db.query(cypherDeleteRelathipships, function(err, result) {
-	    if (err) throw err;
+	    if (err) reject(err);
 	    
 	    this.db.query(cypherDeleteNodes, function(err, result) {
-	      if (err) throw err;
+	      if (err) reject(err);
 		  
-		  console.log("Cleanup Done");
-		  func();
+		  resolve(true);
 	    });
 	  }.bind(this));
 	}
 
-	save(obj, nodeType, func) {
+	save(obj, nodeType, onData, onError) {
+		assert.notEqual(obj, null, "obj can't be null");
+		assert.notEqual(nodeType, null, "nodeType can't be null");
+		
 		let objArray = obj;
 		if (Array.isArray(objArray) == false) {
 			objArray = [obj];
@@ -41,10 +44,20 @@ export default class Persistence {
 			promises.push(p);
 		}
 		
-		Promise.all(promises).then(func, (err) => {console.log(err)});
+		Promise.all(promises).then((data) => {
+				console.log("Data from save");
+				onData(data)
+			}, (err) => {
+				console.log(err); 
+				onError(err)
+			});
 	}
 	
-	relationship(obj, linkType, linkObj, func) {
+	relationship(obj, linkType, linkObj, onData, onError) {
+		assert.notEqual(obj, null, "obj can't be null");
+		assert.notEqual(linkType, null, "linkType can't be null");
+		assert.notEqual(linkObj, null, "linkObj can't be null");
+
 		let objArray = linkObj;
 		if (Array.isArray(objArray) == false) {
 			objArray = [linkObj];
@@ -54,24 +67,28 @@ export default class Persistence {
 		for (let selectObj of objArray) {
 			let p = new Promise((resolve, reject) => {
 				this.db.find(obj, function(err, node) {
-					console.log("Found " + JSON.stringify(node));
-					this.db.find(selectObj, function(err, node2) {
-						console.log("Found " + JSON.stringify(node2));
-						this.db.relate(node, linkType, node2, function(err, relationship) {
-							if (err) throw err;
+					console.log("Found1 " + JSON.stringify(node));
+					this.db.find(selectObj, function(err2, node2) {
+						console.log("Found2 " + JSON.stringify(node2) + " orig:" + JSON.stringify(selectObj));
+						this.db.relate(node, linkType, node2, function(err3, relationship) {
+							if (err3) reject(err3);
+							
 							console.log("relationship Saved");
-							if (func) func();
-						});
+							onData(relationship)
+						}.bind(this));
 					}.bind(this));
 				}.bind(this));
-			});
+			}.bind(this));
 			
 			promises.push(p);
 		}
 
-		Promise.all(promises).then((data) => {func}, (err) => {
-				console.log(err);
-				throw err;
-			});
+		Promise.all(promises).then((data) => {
+			console.log("Data from relationships");
+			onData(data)
+		}, (err) => {
+			console.log(err);
+			onError(err)
+		});
 	}
 }
