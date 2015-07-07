@@ -2,6 +2,6 @@
 
 require("babel/register");
 
-var Main = require('./test/src/Main.es6')
+var Main = require('../test/Main.js')
 
 var test = new Main().run()

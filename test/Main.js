@@ -1,6 +1,6 @@
-import Person from "../../src/Person";
-import Company from "../../src/Company";
-import Persistence from "../../src/Persistence";
+import Person from "../es6/Person";
+import Company from "../es6/Company";
+import Persistence from "../es6/Persistence";
 
 export default class Main {
 	constructor() {
